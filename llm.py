@@ -1,9 +1,12 @@
 import requests
 import os
 from dotenv import load_dotenv
-load_dotenv()
-GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
+import streamlit as st
 
+if os.getenv("STREAMLIT_RUN_ON_SAVE") is None:
+    load_dotenv()
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or st.secrets["GEMINI_API_KEY"]
 
 class GeminiLLM:
     def __init__(self, model_name="gemini-2.5-flash"):
