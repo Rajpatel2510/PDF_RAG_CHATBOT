@@ -5,6 +5,7 @@ from chunk_text import text_chunker
 from embedder import Embedder
 from llm import GeminiLLM
 from chromadb_handler import ChromaDBHandler
+from self_rag import SelfRAG
 
 st.title("Chatbot")
 
@@ -52,17 +53,34 @@ if st.button("Search"):
 
 
 llm = GeminiLLM()
-
+selfrag = SelfRAG(llm)
 if st.button("Generate Answer"):
-    if not user_question:
-        st.warning("Please enter a question.")
-    else:
-        context_pairs = vector.search_similar_chunks(st.session_state.pdf_name, user_question)
+
+    question = user_question.strip()
+    if not question:
+        st.warning("Enter a question.")
+        st.stop()
+
+    context_pairs = vector.search_similar_chunks(st.session_state.pdf_name, question)
 
     if not context_pairs:
-        st.error("No relevant content found in document. Try another question.")
-    else:
-        context = [c[0] for c in context_pairs]
-        answer = llm.generate_answer(user_question, context)
-        st.write(answer)
+        st.error("No relevant chunks found.")
+        st.stop()
 
+    chunks = [c[0] for c in context_pairs]
+
+    # ✅ Step-1: Evaluate relevance (Self-RAG)
+    evaluation = selfrag.evaluate_context(question, chunks)
+    # st.write("Self-RAG Score:", evaluation)
+    st.markdown(f"**Self-RAG Evaluation:** {evaluation}")
+
+
+    if "bad" in evaluation.lower():
+        st.warning("Low context confidence, refining retrieval…")
+        context_pairs = vector.search_similar_chunks(st.session_state.pdf_name, question)
+        chunks = [c[0] for c in context_pairs]
+
+    # ✅ Step-2: Final answer grounded to context
+    answer = selfrag.final_answer(question, chunks)
+    st.markdown("### Final Answer")
+    st.write(answer)
