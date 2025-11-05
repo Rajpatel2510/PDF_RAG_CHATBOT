@@ -1,0 +1,10 @@
+streamlit
+langchain_core
+langchain_community
+dotenv
+pymupdf
+langchain_text_splitters
+langchain_google_genai
+sentence_transformers
+chromadb
+requests
