@@ -1,13 +1,26 @@
 import chromadb
 from typing import List
+from chromadb.config import Settings
 from embedder import Embedder  # your sentence-transformer (or similar)
+import os
 
 class ChromaDBHandler:
     def __init__(self, persist_dir: str = "chroma_db", collection_name: str = "rag_collection"):
         try:
-            self.client = chromadb.PersistentClient(path=persist_dir)
+            # If running on Streamlit cloud → use /tmp (ephemeral storage)
+            if os.getenv("STREAMLIT_RUNTIME"):
+                persist_dir = "/tmp/chroma_db"
+
+            self.client = chromadb.Client(
+                Settings(
+                    chroma_db_impl="duckdb+parquet",
+                    persist_directory=persist_dir
+                )
+            )
+
             self.collection = self.client.get_or_create_collection(name=collection_name)
             self.embedder = Embedder()
+
         except Exception as e:
             raise RuntimeError(f"ChromaDB initialization failed: {str(e)}")
 
