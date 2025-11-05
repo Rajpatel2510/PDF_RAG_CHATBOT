@@ -1,13 +1,12 @@
 import chromadb
-from typing import List
 from chromadb.config import Settings
-from embedder import Embedder  # your sentence-transformer (or similar)
+from typing import List
+from embedder import Embedder
 import os
 
 class ChromaDBHandler:
     def __init__(self, persist_dir: str = "chroma_db", collection_name: str = "rag_collection"):
         try:
-            # If running on Streamlit cloud → use /tmp (ephemeral storage)
             if os.getenv("STREAMLIT_RUNTIME"):
                 persist_dir = "/tmp/chroma_db"
 
@@ -17,7 +16,6 @@ class ChromaDBHandler:
                     persist_directory=persist_dir
                 )
             )
-
             self.collection = self.client.get_or_create_collection(name=collection_name)
             self.embedder = Embedder()
 
@@ -41,9 +39,10 @@ class ChromaDBHandler:
                 metadatas=metadatas
             )
             return f"Added {len(documents)} chunks for {file_name}"
+
         except Exception as e:
             raise RuntimeError(f"Error adding data to ChromaDB: {str(e)}")
-        
+
     def search_similar_chunks(self, file_name: str, query: str, top_k: int = 5):
         query_emb = self.embedder.encode([query])
 
