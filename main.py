@@ -81,5 +81,5 @@ if st.button("Generate Answer"):
         chunks = [c[0] for c in context_pairs]
 
     answer = selfrag.final_answer(question, chunks)
-    st.markdown("### Final Answer")
+    # st.markdown("### Final Answer")
     st.write(answer)
