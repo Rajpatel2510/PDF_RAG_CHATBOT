@@ -14,24 +14,26 @@ class GeminiLLM:
         self.url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"  
         self.model_name = model_name
 
-    def generate_answer(self, question: str, context: list) -> str:
+    def generate_answer(self, question: str, context: list = None) -> str:
         try:
-            context_text = "\n".join(context) if context else "No document context"
-            prompt = (
-                f"You are an advanced document analysis assistant capable of providing insightful, detailed, and professional answers.\n"
-                f"Your task is to analyze the provided document content and respond accurately to the user's question.\n"
-                f"Document Type: General (resumes, reports, legal contracts, manuals, papers, etc.)\n"
-                f"Content:\n{context_text}\n\n"
-                f"User Question: {question}\n"
-                "Answer:"
-            )
+            context_text = "\n".join(context) if context else ""
+
+            prompt = f"You are a professional document-grounded AI.\n"
+
+            if context:
+                prompt += (
+                    f"Use ONLY the document information below.\n"
+                    f"If answer is not in document say: \"Not in document\".\n\n"
+                    f"Document Context:\n{context_text}\n\n"
+                    f"User Question: {question}\nAnswer:"
+                )
+            else:
+                # Self-RAG scoring prompt
+                prompt += question
+
             response = requests.post(self.url, json={
                 "contents": [
-                    {
-                        "parts": [
-                            {"text": prompt}
-                        ]
-                    }
+                    {"parts": [{"text": prompt}]}
                 ]
             })
 
