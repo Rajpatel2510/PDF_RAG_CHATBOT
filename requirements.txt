@@ -1,13 +1,14 @@
 streamlit
 langchain_core
 langchain_community
+dotenv
+pymupdf
 langchain_text_splitters
 langchain_google_genai
-python-dotenv
-pymupdf
-sentence-transformers
+sentence_transformers
+# chromadb
 requests
-chromadb==0.4.24
-pypdf2
+chromadb>=0.5.3
+protobuf
 google-generativeai
-numpy==1.26.4
+streamlit
