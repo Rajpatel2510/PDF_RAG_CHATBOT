@@ -72,7 +72,7 @@ if st.button("Generate Answer"):
     # ✅ Step-1: Evaluate relevance (Self-RAG)
     evaluation = selfrag.evaluate_context(question, chunks)
     # st.write("Self-RAG Score:", evaluation)
-    st.markdown(f"**Self-RAG Evaluation:** {evaluation}")
+    # st.markdown(f"**Self-RAG Evaluation:** {evaluation}")
 
 
     if "bad" in evaluation.lower():
@@ -80,7 +80,6 @@ if st.button("Generate Answer"):
         context_pairs = vector.search_similar_chunks(st.session_state.pdf_name, question)
         chunks = [c[0] for c in context_pairs]
 
-    # ✅ Step-2: Final answer grounded to context
     answer = selfrag.final_answer(question, chunks)
     st.markdown("### Final Answer")
     st.write(answer)
